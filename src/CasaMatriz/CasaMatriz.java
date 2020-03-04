@@ -20,7 +20,6 @@ public class CasaMatriz extends javax.swing.JFrame{
     
     public CasaMatriz() {
         initComponents();
-        this.estacionesDeServicios.addItem("");
         this.estacionesDeServicios.setSelectedIndex(0);
         s = new Conexion(5000);
     }
@@ -290,6 +289,7 @@ public class CasaMatriz extends javax.swing.JFrame{
 
     private void precioAUnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_precioAUnoActionPerformed
         // TODO add your handling code here:
+        System.out.println(this.estacionesDeServicios.getSelectedIndex());
         Precios precios = new Precios(Double.parseDouble(b93.getText()), Double.parseDouble(b95.getText()), Double.parseDouble(b97.getText()), Double.parseDouble(disel.getText()), Double.parseDouble(kerosene.getText()));
         if(this.estacionesDeServicios.getSelectedIndex()==0){
             try {
@@ -297,11 +297,12 @@ public class CasaMatriz extends javax.swing.JFrame{
             } catch (IOException ex) {
                 Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
-        try {
-            s.editarInformacionDelPrecioDeUnaEstacion(this.estacionesDeServicios.getSelectedIndex()-1, precios);
-        } catch (IOException ex) {
-            Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
+        }else{
+            try {
+                s.editarInformacionDelPrecioDeUnaEstacion(this.estacionesDeServicios.getSelectedIndex()-1, precios);
+            } catch (IOException ex) {
+                Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }//GEN-LAST:event_precioAUnoActionPerformed
 
@@ -396,6 +397,8 @@ public class CasaMatriz extends javax.swing.JFrame{
 
     void agregarConexion(String id, String direccion, String ip) {
         this.s.agregarConexion(id, direccion, ip);
+        this.estacionesDeServicios.addItem(id + " " + direccion);
+        this.estacionesDeServicios1.addItem(id + " " + direccion);
     }
 
 }
