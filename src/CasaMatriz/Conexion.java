@@ -88,4 +88,17 @@ public class Conexion {
     void agregarConexion(String id, String direccion, String ip) {
         this.estacionesdeservicio.add(new EstacionDeServicio(Integer.parseInt(id),direccion,ip,puerto));
     }
+
+    void obtenerInformacionDeLaEstacion(int selectedIndex, String itemAt) throws IOException {
+        Socket socket;
+        socket=new Socket(this.estacionesdeservicio.get(selectedIndex).getIp(), this.estacionesdeservicio.get(selectedIndex).getPuerto());
+        DataInputStream inSocket = new DataInputStream(socket.getInputStream());
+        DataOutputStream outSocket= new DataOutputStream(socket.getOutputStream()); 
+        outSocket.writeInt(2);
+        outSocket.writeUTF(itemAt);
+        // aca recibo
+        inSocket.close();
+        outSocket.close();
+        socket.close();
+    }
 }
