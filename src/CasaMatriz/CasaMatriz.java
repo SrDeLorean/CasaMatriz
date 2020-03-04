@@ -8,6 +8,7 @@ package CasaMatriz;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -289,7 +290,6 @@ public class CasaMatriz extends javax.swing.JFrame{
 
     private void precioAUnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_precioAUnoActionPerformed
         // TODO add your handling code here:
-        System.out.println(this.estacionesDeServicios.getSelectedIndex());
         Precios precios = new Precios(Double.parseDouble(b93.getText()), Double.parseDouble(b95.getText()), Double.parseDouble(b97.getText()), Double.parseDouble(disel.getText()), Double.parseDouble(kerosene.getText()));
         if(this.estacionesDeServicios.getSelectedIndex()==0){
             try {
@@ -304,6 +304,8 @@ public class CasaMatriz extends javax.swing.JFrame{
                 Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        
+        JOptionPane.showMessageDialog(null,"Operacion realizada con exito");
     }//GEN-LAST:event_precioAUnoActionPerformed
 
     private void reporteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reporteActionPerformed
@@ -313,6 +315,8 @@ public class CasaMatriz extends javax.swing.JFrame{
         } catch (IOException ex) {
             Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        JOptionPane.showMessageDialog(null,"Operacion realizada con exito");
     }//GEN-LAST:event_reporteActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
