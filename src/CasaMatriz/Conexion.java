@@ -74,11 +74,11 @@ public class Conexion {
         if (cantidadCompras!= 0) {
             for (int i = 0; i < cantidadCompras; i++) {
                 String [] compra = new String[5];
-                compra[0] = Integer.toString(inSocket.read());
-                compra[1] = Integer.toString(inSocket.read());
+                compra[0] = Integer.toString(inSocket.readInt());
+                compra[1] = Integer.toString(inSocket.readInt());
                 compra[2] = inSocket.readUTF();
                 compra[3] = String.valueOf(inSocket.readDouble());
-                compra[4] = Integer.toString(inSocket.read());
+                compra[4] = Integer.toString(inSocket.readInt());
                 System.out.println(compra[0]+ " " + compra[1] + " " + compra[2]+ " " + compra[3] + " " + compra[4]);
                 informe.add(compra);
             }
