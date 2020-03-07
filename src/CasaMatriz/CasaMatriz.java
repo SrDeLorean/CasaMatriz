@@ -8,6 +8,7 @@ package CasaMatriz;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -20,7 +21,6 @@ public class CasaMatriz extends javax.swing.JFrame{
     
     public CasaMatriz() {
         initComponents();
-        this.estacionesDeServicios.addItem("");
         this.estacionesDeServicios.setSelectedIndex(0);
         s = new Conexion(5000);
     }
@@ -144,7 +144,7 @@ public class CasaMatriz extends javax.swing.JFrame{
         jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel13.setText("Tipo de combustible");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "93", "95", "97.Diesel", "Kerosene" }));
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "93", "95", "97", "Diesel", "Kerosene" }));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -291,12 +291,32 @@ public class CasaMatriz extends javax.swing.JFrame{
     private void precioAUnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_precioAUnoActionPerformed
         // TODO add your handling code here:
         Precios precios = new Precios(Double.parseDouble(b93.getText()), Double.parseDouble(b95.getText()), Double.parseDouble(b97.getText()), Double.parseDouble(disel.getText()), Double.parseDouble(kerosene.getText()));
-        //s.editarInformacionDelPrecioDeUnaEstacion(this.estacionesDeServicios.getSelectedIndex()-1, precios);
+        if(this.estacionesDeServicios.getSelectedIndex()==0){
+            try {
+                s.editarInformacionDelPrecioDeTodasLasEstaciones(precios);
+            } catch (IOException ex) {
+                Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }else{
+            try {
+                s.editarInformacionDelPrecioDeUnaEstacion(this.estacionesDeServicios.getSelectedIndex()-1, precios);
+            } catch (IOException ex) {
+                Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        JOptionPane.showMessageDialog(null,"Operacion realizada con exito");
     }//GEN-LAST:event_precioAUnoActionPerformed
 
     private void reporteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reporteActionPerformed
-        // TODO add your handling code here:
-        //s.obtenerInformacionDeLaEstacion(this.estacionesDeServicios.getSelectedIndex()-1);
+        try {
+            // TODO add your handling code here:
+            s.obtenerInformacionDeLaEstacion(this.estacionesDeServicios.getSelectedIndex(), this.jComboBox1.getItemAt(this.jComboBox1.getSelectedIndex()));
+        } catch (IOException ex) {
+            Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        JOptionPane.showMessageDialog(null,"Operacion realizada con exito");
     }//GEN-LAST:event_reporteActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -381,6 +401,8 @@ public class CasaMatriz extends javax.swing.JFrame{
 
     void agregarConexion(String id, String direccion, String ip) {
         this.s.agregarConexion(id, direccion, ip);
+        this.estacionesDeServicios.addItem(id + " " + direccion);
+        this.estacionesDeServicios1.addItem(id + " " + direccion);
     }
 
 }

@@ -5,7 +5,10 @@
  */
 package CasaMatriz;
 
+import com.sun.java.swing.plaf.windows.resources.windows;
 import java.time.Clock;
+import javax.swing.JOptionPane;
+import javax.swing.WindowConstants;
 
 /**
  *
@@ -21,6 +24,7 @@ public class CrearConexion extends javax.swing.JFrame {
     
     public CrearConexion(CasaMatriz papa) {
         this.papa=papa;
+        this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.setVisible(true);
         initComponents();
     }
@@ -57,7 +61,7 @@ public class CrearConexion extends javax.swing.JFrame {
             }
         });
 
-        jButton2.setText("Cancelar");
+        jButton2.setText("Cerrar");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
@@ -155,12 +159,16 @@ public class CrearConexion extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         this.papa.agregarConexion(this.id.getText(), this.direccion.getText(), this.ip.getText());
-        System.exit(0);
+        this.id.setText("");
+        this.ip.setText("");
+        this.direccion.setText("");
+        JOptionPane.showMessageDialog(null,"Operacion realizada con exito");
+        this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-        System.exit(0);
+        this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
