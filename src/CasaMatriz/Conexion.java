@@ -18,7 +18,10 @@ public class Conexion {
     private int puerto;
     private DataInputStream dis;
     private DataOutputStream out;
-
+    private ArrayList<String[]> informe;
+    private int litrosConsumidos=0;
+    private int cantidadDeCargas=0;
+    
     public Conexion(int puerto) {
         this.estacionesdeservicio = new ArrayList<>();
         this.puerto = puerto;
@@ -70,7 +73,7 @@ public class Conexion {
         outSocket.writeUTF(tipoCombustible);
         int cantidadCompras = inSocket.read();
         System.out.println(cantidadCompras);
-        ArrayList<String[]> informe = new ArrayList<>();
+        informe = new ArrayList<>();
         if (cantidadCompras!= 0) {
             for (int i = 0; i < cantidadCompras; i++) {
                 String [] compra = new String[5];
@@ -79,13 +82,15 @@ public class Conexion {
                 compra[2] = inSocket.readUTF();
                 compra[3] = String.valueOf(inSocket.readDouble());
                 compra[4] = Integer.toString(inSocket.readInt());
-                System.out.println(compra[0]+ " " + compra[1] + " " + compra[2]+ " " + compra[3] + " " + compra[4]);
                 informe.add(compra);
             }
         }
+        litrosConsumidos=inSocket.readInt();
+        cantidadDeCargas=inSocket.readInt();
         inSocket.close();
         outSocket.close();
         socket.close();
+        
     }
    
     
@@ -108,4 +113,18 @@ public class Conexion {
     public void agregarConexion(String id, String direccion, String ip) {
         this.estacionesdeservicio.add(new EstacionDeServicio(Integer.parseInt(id),direccion,ip,puerto));
     }
+
+    public ArrayList<String[]> getInforme() {
+        return informe;
+    }
+
+    public int getLitrosConsumidos() {
+        return litrosConsumidos;
+    }
+
+    public int getCantidadDeCargas() {
+        return cantidadDeCargas;
+    }
+    
+    
 }
