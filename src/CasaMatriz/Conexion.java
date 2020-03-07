@@ -51,7 +51,7 @@ public class Conexion {
             outSocket.writeDouble(precios.getB93());
             outSocket.writeDouble(precios.getB95());
             outSocket.writeDouble(precios.getB97());
-//            outSocket.writeDouble(precios.getDisel());
+            outSocket.writeDouble(precios.getDisel());
             outSocket.writeDouble(precios.getKerosene());
             inSocket.close();
             outSocket.close();
@@ -66,9 +66,11 @@ public class Conexion {
         DataOutputStream outSocket= new DataOutputStream(socket.getOutputStream()); 
         //outSocket.writeUTF("Se escucha server");
         //System.out.println(inSocket.readUTF());
-        
+        outSocket.writeInt(2);
+        outSocket.writeUTF(tipoCombustible);
         int cantidadCompras = inSocket.read();
-        ArrayList<String> informe = new ArrayList<>();
+        System.out.println(cantidadCompras);
+        ArrayList<String[]> informe = new ArrayList<>();
         if (cantidadCompras!= 0) {
             for (int i = 0; i < cantidadCompras; i++) {
                 String [] compra = new String[5];
@@ -77,18 +79,13 @@ public class Conexion {
                 compra[2] = inSocket.readUTF();
                 compra[3] = String.valueOf(inSocket.readDouble());
                 compra[4] = Integer.toString(inSocket.read());
+                System.out.println(compra[0]+ " " + compra[1] + " " + compra[2]+ " " + compra[3] + " " + compra[4]);
+                informe.add(compra);
             }
-  
         }
         inSocket.close();
         outSocket.close();
-        
-//        try {
-//            DataOutputStream dos = new DataOutputStream(this.estacionesdeservicio.get(idEstacion).getOutputStream());
-//            dos.writeInt(2);
-//        } catch (IOException ex) {
-//            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
-//        }
+        socket.close();
     }
    
     
@@ -108,20 +105,7 @@ public class Conexion {
         return estacionesdeservicio;
     }
 
-    void agregarConexion(String id, String direccion, String ip) {
+    public void agregarConexion(String id, String direccion, String ip) {
         this.estacionesdeservicio.add(new EstacionDeServicio(Integer.parseInt(id),direccion,ip,puerto));
-    }
-
-    void obtenerInformacionDeLaEstacion(int selectedIndex, String itemAt) throws IOException {
-        Socket socket;
-        socket=new Socket(this.estacionesdeservicio.get(selectedIndex).getIp(), this.estacionesdeservicio.get(selectedIndex).getPuerto());
-        DataInputStream inSocket = new DataInputStream(socket.getInputStream());
-        DataOutputStream outSocket= new DataOutputStream(socket.getOutputStream()); 
-        outSocket.writeInt(2);
-        outSocket.writeUTF(itemAt);
-        // aca recibo
-        inSocket.close();
-        outSocket.close();
-        socket.close();
     }
 }

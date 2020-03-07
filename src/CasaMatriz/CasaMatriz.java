@@ -144,7 +144,7 @@ public class CasaMatriz extends javax.swing.JFrame{
         jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel13.setText("Tipo de combustible");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "93", "95", "97.Diesel", "Kerosene" }));
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "93", "95", "97", "Diesel", "Kerosene" }));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

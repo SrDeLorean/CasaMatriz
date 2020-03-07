@@ -361,11 +361,12 @@
     <Component class="javax.swing.JComboBox" name="jComboBox1">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="4">
+          <StringArray count="5">
             <StringItem index="0" value="93"/>
             <StringItem index="1" value="95"/>
-            <StringItem index="2" value="97.Diesel"/>
-            <StringItem index="3" value="Kerosene"/>
+            <StringItem index="2" value="97"/>
+            <StringItem index="3" value="Diesel"/>
+            <StringItem index="4" value="Kerosene"/>
           </StringArray>
         </Property>
       </Properties>
