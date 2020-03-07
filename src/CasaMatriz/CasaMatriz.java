@@ -6,6 +6,7 @@
 package CasaMatriz;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -312,6 +313,9 @@ public class CasaMatriz extends javax.swing.JFrame{
         try {
             // TODO add your handling code here:
             s.obtenerInformacionDeLaEstacion(this.estacionesDeServicios.getSelectedIndex(), this.jComboBox1.getItemAt(this.jComboBox1.getSelectedIndex()));
+            ArrayList<String[]> informe = s.getInforme();
+            int cantidadDeCargas = s.getCantidadDeCargas();
+            Double litrosConsumidos = s.getLitrosConsumidos(); 
         } catch (IOException ex) {
             Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
         }
