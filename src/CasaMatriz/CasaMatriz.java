@@ -315,7 +315,7 @@ public class CasaMatriz extends javax.swing.JFrame{
             s.obtenerInformacionDeLaEstacion(this.estacionesDeServicios.getSelectedIndex(), this.jComboBox1.getItemAt(this.jComboBox1.getSelectedIndex()));
             ArrayList<String[]> informe = s.getInforme();
             int cantidadDeCargas = s.getCantidadDeCargas();
-            int litrosConsumidos = s.getLitrosConsumidos(); 
+            Double litrosConsumidos = s.getLitrosConsumidos(); 
         } catch (IOException ex) {
             Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -19,7 +19,7 @@ public class Conexion {
     private DataInputStream dis;
     private DataOutputStream out;
     private ArrayList<String[]> informe;
-    private int litrosConsumidos=0;
+    private Double litrosConsumidos=0.0;
     private int cantidadDeCargas=0;
     
     public Conexion(int puerto) {
@@ -85,7 +85,7 @@ public class Conexion {
                 informe.add(compra);
             }
         }
-        litrosConsumidos=inSocket.readInt();
+        litrosConsumidos=inSocket.readDouble();
         cantidadDeCargas=inSocket.readInt();
         inSocket.close();
         outSocket.close();
@@ -118,7 +118,7 @@ public class Conexion {
         return informe;
     }
 
-    public int getLitrosConsumidos() {
+    public Double getLitrosConsumidos() {
         return litrosConsumidos;
     }
 
