@@ -72,7 +72,6 @@ public class Conexion {
         outSocket.writeInt(2);
         outSocket.writeUTF(tipoCombustible);
         int cantidadCompras = inSocket.read();
-        System.out.println(cantidadCompras);
         informe = new ArrayList<>();
         if (cantidadCompras!= 0) {
             for (int i = 0; i < cantidadCompras; i++) {
@@ -87,6 +86,8 @@ public class Conexion {
         }
         litrosConsumidos=inSocket.readDouble();
         cantidadDeCargas=inSocket.readInt();
+        System.out.println("litrosConsumidos" + litrosConsumidos);
+        System.out.println("cantidadDeCargas" +cantidadDeCargas);
         inSocket.close();
         outSocket.close();
         socket.close();

@@ -5,7 +5,7 @@
  */
 package CasaMatriz;
 
-import com.sun.xml.internal.txw2.Document;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -317,8 +317,8 @@ public class CasaMatriz extends javax.swing.JFrame{
     private void reporteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reporteActionPerformed
         try {
             // TODO add your handling code here:
-            s.obtenerInformacionDeLaEstacion(this.estacionesDeServicios.getSelectedIndex(), this.jComboBox1.getItemAt(this.jComboBox1.getSelectedIndex()));
-            String estacion = this.estacionesDeServicios.getItemAt(this.estacionesDeServicios.getSelectedIndex());
+            s.obtenerInformacionDeLaEstacion(this.estacionesDeServicios1.getSelectedIndex(), this.jComboBox1.getItemAt(this.jComboBox1.getSelectedIndex()));
+            String estacion = this.estacionesDeServicios1.getItemAt(this.estacionesDeServicios1.getSelectedIndex());
             String tipoCombustible = this.jComboBox1.getItemAt(this.jComboBox1.getSelectedIndex());
             ArrayList<String[]> informe = s.getInforme();
             int cantidadDeCargas = s.getCantidadDeCargas();
@@ -434,19 +434,28 @@ public class CasaMatriz extends javax.swing.JFrame{
            FileWriter fw = new FileWriter(file);
            BufferedWriter bw = new BufferedWriter(fw);
            bw.write(contenido);
-           bw.write(" ");
+           bw.write("\n");
            bw.write("ID de la estación  : "+nombre);
+           bw.write("\n");
            bw.write("Tipo de combustible: "+tipo);
+           bw.write("\n");
            bw.write("Cantidad de cargar : "+cantidadDeCargas);
+           bw.write("\n");
            bw.write("Litros consumido   : "+litrosConsumidos);
-           bw.write(" ");
+           bw.write("\n");
            bw.write(" IdCompra - IdSurtidor - TipoCombustible - LitrosCargados - PrecioTotal");
             for (int i = 0; i < inf.size(); i++) {
                 String cadena = " ";
                 for (int j = 0; j < inf.get(i).length; j++) {
-                    cadena += " - "+inf.get(i)[j] ;
+                    if(j==0){
+                        cadena +=inf.get(i)[j] ;
+                    }else{
+                        cadena += "      -       "+inf.get(i)[j] ;
+                    }
                 }
+                bw.write("\n");
                 bw.write(cadena);
+
             }
            bw.close();
        } catch (Exception e) {
