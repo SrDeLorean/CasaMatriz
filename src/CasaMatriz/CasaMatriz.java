@@ -5,11 +5,16 @@
  */
 package CasaMatriz;
 
+import com.sun.xml.internal.txw2.Document;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+
 
 /**
  *
@@ -313,9 +318,13 @@ public class CasaMatriz extends javax.swing.JFrame{
         try {
             // TODO add your handling code here:
             s.obtenerInformacionDeLaEstacion(this.estacionesDeServicios.getSelectedIndex(), this.jComboBox1.getItemAt(this.jComboBox1.getSelectedIndex()));
+            String estacion = this.estacionesDeServicios.getItemAt(this.estacionesDeServicios.getSelectedIndex());
+            String tipoCombustible = this.jComboBox1.getItemAt(this.jComboBox1.getSelectedIndex());
             ArrayList<String[]> informe = s.getInforme();
             int cantidadDeCargas = s.getCantidadDeCargas();
             Double litrosConsumidos = s.getLitrosConsumidos(); 
+            this.crearInforme(estacion,tipoCombustible,informe,cantidadDeCargas,litrosConsumidos);
+            
         } catch (IOException ex) {
             Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -408,5 +417,42 @@ public class CasaMatriz extends javax.swing.JFrame{
         this.estacionesDeServicios.addItem(id + " " + direccion);
         this.estacionesDeServicios1.addItem(id + " " + direccion);
     }
-
+    
+    public void crearInforme(String estacion, String tipoCombustible,ArrayList<String[]> informe,int cantidadDeCargas, double litrosConsumidos){
+        // Se crea el documento
+        try {
+           String nombre = estacion;
+           String tipo = tipoCombustible;
+           String ruta = nombre+"-"+tipo+".txt" ;
+           String contenido = "Infome de consumo de combustible";
+            ArrayList<String[]> inf = informe;
+           File file = new File(ruta);
+           // Si el archivo no existe es creado
+           if (!file.exists()) {
+               file.createNewFile();
+           }
+           FileWriter fw = new FileWriter(file);
+           BufferedWriter bw = new BufferedWriter(fw);
+           bw.write(contenido);
+           bw.write(" ");
+           bw.write("ID de la estación  : "+nombre);
+           bw.write("Tipo de combustible: "+tipo);
+           bw.write("Cantidad de cargar : "+cantidadDeCargas);
+           bw.write("Litros consumido   : "+litrosConsumidos);
+           bw.write(" ");
+           bw.write(" IdCompra - IdSurtidor - TipoCombustible - LitrosCargados - PrecioTotal");
+            for (int i = 0; i < inf.size(); i++) {
+                String cadena = " ";
+                for (int j = 0; j < inf.get(i).length; j++) {
+                    cadena += " - "+inf.get(i)[j] ;
+                }
+                bw.write(cadena);
+            }
+           bw.close();
+       } catch (Exception e) {
+           e.printStackTrace();
+       }
+    }
+        
+        
 }
