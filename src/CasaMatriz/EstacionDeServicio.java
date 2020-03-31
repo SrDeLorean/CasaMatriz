@@ -12,23 +12,14 @@ package CasaMatriz;
 public class EstacionDeServicio {
     
     private int id;
+    private String nombre;
     private String direccion;
-    private String ip;
-    private int puerto;
 
-    public EstacionDeServicio(int id, String direccion, String ip, int puerto) {
+
+    public EstacionDeServicio(int id,String nombre, String direccion ) {
         this.id = id;
+        this.nombre=nombre;
         this.direccion = direccion;
-        this.ip = ip;
-        this.puerto=puerto;
-    }
-
-    public int getPuerto() {
-        return puerto;
-    }
-
-    public void setPuerto(int puerto) {
-        this.puerto = puerto;
     }
 
     public int getId() {
@@ -39,6 +30,14 @@ public class EstacionDeServicio {
         this.id = id;
     }
 
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
     public String getDireccion() {
         return direccion;
     }
@@ -46,14 +45,10 @@ public class EstacionDeServicio {
     public void setDireccion(String direccion) {
         this.direccion = direccion;
     }
+    
+    
 
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
+    
     
     
 }
