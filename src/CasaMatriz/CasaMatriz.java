@@ -13,10 +13,15 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 /**
@@ -321,23 +326,88 @@ public class CasaMatriz extends javax.swing.JFrame{
     private void precioAUnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_precioAUnoActionPerformed
         // TODO add your handling code here:
         //Precios precios = new Precios(Double.parseDouble(b93.getText()), Double.parseDouble(b95.getText()), Double.parseDouble(b97.getText()), Double.parseDouble(disel.getText()), Double.parseDouble(kerosene.getText()));
-//        if(this.estacionesDeServicios.getSelectedIndex()==0){
-//            try {
-//                s.editarInformacionDelPrecioDeTodasLasEstaciones(precios);
-//            } catch (IOException ex) {
-//                Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//        }else{
-//            try {
-//                s.editarInformacionDelPrecioDeUnaEstacion(this.estacionesDeServicios.getSelectedIndex()-1, precios);
-//            } catch (IOException ex) {
-//                Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//        }
+
         
-        //JOptionPane.showMessageDialog(null,"Operacion realizada con exito");
+        int idSucursal = this.obtenerIdSucursal();
+        Date date = new Date();
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        if (this.estacionesDeServicios.getSelectedIndex()!= 0) {
+            try {
+                String sql = "insert into precios(idSucursal,b93,b95,b97,diesel,kerosene,fecha) values('"+idSucursal+"','"+b93.getText()+"','"+Double.parseDouble(b95.getText()) +"','"+ Double.parseDouble(b97.getText())+"','"+Double.parseDouble(disel.getText()) +"','"+Double.parseDouble(kerosene.getText()) +"','"+dateFormat.format(date) +"')";
+                con = conexionBDGoogleCloud.getConnection();
+                st = con.createStatement();
+                st.executeUpdate(sql);
+                JOptionPane.showMessageDialog(null, "Actualizacion de precios realizada corectamente");
+                this.b93.setText("");
+                this.b95.setText("");
+                this.b97.setText("");
+                this.disel.setText("");
+                this.kerosene.setText("");
+                this.estacionesDeServicios.setSelectedIndex(0);
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        }
+        else {    
+            String sql = "Select * from estacionesdeservicio";
+            try {
+                ArrayList<EstacionDeServicio>estacionesDeServicio = new ArrayList<>();
+                con = this.conexionBDLocal.getConnection();
+                st = con.createStatement();
+                rs = st.executeQuery(sql);
+                while(rs.next()) {
+                    EstacionDeServicio e = new EstacionDeServicio(rs.getInt("id"),rs.getString("nombre"),rs.getString("direccion"));
+                    estacionesDeServicio.add(e);
+                }
+                for (int i = 0; i < estacionesDeServicio.size(); i++) {
+                    int idSucursalMomentanea = estacionesDeServicio.get(i).getId();
+                    try {
+                        String sql2 = "insert into precios(idSucursal,b93,b95,b97,diesel,kerosene,fecha) values('"+idSucursalMomentanea+"','"+b93.getText()+"','"+Double.parseDouble(b95.getText()) +"','"+ Double.parseDouble(b97.getText())+"','"+Double.parseDouble(disel.getText()) +"','"+Double.parseDouble(kerosene.getText()) +"','"+dateFormat.format(date) +"')";
+                        con = conexionBDGoogleCloud.getConnection();
+                        st = con.createStatement();
+                        st.executeUpdate(sql2);
+                        JOptionPane.showMessageDialog(null, "Actualizacion de precios realizada corectamente");
+                        this.b93.setText("");
+                        this.b95.setText("");
+                        this.b97.setText("");
+                        this.disel.setText("");
+                        this.kerosene.setText("");
+                        this.estacionesDeServicios.setSelectedIndex(0);
+                    } catch (Exception e) {
+                        System.out.println(e);
+                    }
+                }
+            } catch (Exception e) {
+                //algo
+            }
+            
+        }
+        
     }//GEN-LAST:event_precioAUnoActionPerformed
 
+    private int obtenerIdSucursal(){
+        int id = 0;
+    
+        int seleccionado = this.estacionesDeServicios.getSelectedIndex();
+        String sql = "Select * from estacionesdeservicio where id = '"+seleccionado+"'";
+        try {
+            con = this.conexionBDLocal.getConnection();
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            EstacionDeServicio e = null;
+            while(rs.next()) {
+                e = new EstacionDeServicio(rs.getInt("id"),rs.getString("nombre"),rs.getString("direccion"));
+            }
+            id = e.getId();
+            return id;
+            
+        } catch (Exception e) {
+            //algo
+        }
+
+        return id;
+    }
+       
     private void reporteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reporteActionPerformed
         try {
             // TODO add your handling code here:
@@ -604,7 +674,7 @@ public class CasaMatriz extends javax.swing.JFrame{
             st = con.createStatement();
             rs = st.executeQuery(sql);
             while(rs.next()) {
-                Precios p = new Precios(rs.getInt("id"),rs.getInt("idSucursal"),rs.getInt("idPrecio"),rs.getDouble("b93"),rs.getDouble("b95"),rs.getDouble("b97"),rs.getDouble("diesel"),rs.getDouble("kerosene"),rs.getDate("fecha"));
+                Precios p = new Precios(rs.getInt("id"),rs.getInt("idSucursal"),rs.getDouble("b93"),rs.getDouble("b95"),rs.getDouble("b97"),rs.getDouble("diesel"),rs.getDouble("kerosene"),rs.getDate("fecha"));
                 this.backupPrecios.add(p);
             }
            
