@@ -10,6 +10,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,11 +27,20 @@ public class CasaMatriz extends javax.swing.JFrame{
 
     private int puerto;
     private Conexion s;
+    private ConexionBDGoogleCloud conexionBDGoogleCloud = new ConexionBDGoogleCloud();
+    private ConexionBDLocal conexionBDLocal = new ConexionBDLocal();
+    private Connection con;
+    private Statement st;
+    private ResultSet rs;
+    private ArrayList<Compra> backupCompras;
+    private ArrayList<EstacionDeServicio> backupEstacionDeServicio;
+    private ArrayList<Precios> backupPrecios;
     
     public CasaMatriz() {
         initComponents();
         this.estacionesDeServicios.setSelectedIndex(0);
         s = new Conexion(5000);
+        this.actualizarEstacionesServicios();
     }
 
     
@@ -68,6 +80,7 @@ public class CasaMatriz extends javax.swing.JFrame{
         estacionesDeServicios1 = new javax.swing.JComboBox<>();
         jLabel13 = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox<>();
+        backups = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -152,6 +165,13 @@ public class CasaMatriz extends javax.swing.JFrame{
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "93", "95", "97", "Diesel", "Kerosene" }));
 
+        backups.setText("Simulación backups");
+        backups.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                backupsActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -162,8 +182,8 @@ public class CasaMatriz extends javax.swing.JFrame{
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(10, 10, 10)
                         .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
-                        .addComponent(estacionesDeServicios, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
+                        .addComponent(estacionesDeServicios, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(10, 10, 10)
                         .addComponent(jSeparator1))
@@ -222,14 +242,16 @@ public class CasaMatriz extends javax.swing.JFrame{
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(10, 10, 10))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(10, 10, 10)
-                .addComponent(reporte, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(10, 10, 10))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(10, 10, 10)
                 .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(10, 10, 10))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(reporte, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 70, Short.MAX_VALUE)
+                .addComponent(backups, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -287,7 +309,9 @@ public class CasaMatriz extends javax.swing.JFrame{
                     .addComponent(jLabel13)
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(reporte, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(reporte, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
+                    .addComponent(backups, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(10, 10, 10))
         );
 
@@ -296,22 +320,22 @@ public class CasaMatriz extends javax.swing.JFrame{
 
     private void precioAUnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_precioAUnoActionPerformed
         // TODO add your handling code here:
-        Precios precios = new Precios(Double.parseDouble(b93.getText()), Double.parseDouble(b95.getText()), Double.parseDouble(b97.getText()), Double.parseDouble(disel.getText()), Double.parseDouble(kerosene.getText()));
-        if(this.estacionesDeServicios.getSelectedIndex()==0){
-            try {
-                s.editarInformacionDelPrecioDeTodasLasEstaciones(precios);
-            } catch (IOException ex) {
-                Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }else{
-            try {
-                s.editarInformacionDelPrecioDeUnaEstacion(this.estacionesDeServicios.getSelectedIndex()-1, precios);
-            } catch (IOException ex) {
-                Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        //Precios precios = new Precios(Double.parseDouble(b93.getText()), Double.parseDouble(b95.getText()), Double.parseDouble(b97.getText()), Double.parseDouble(disel.getText()), Double.parseDouble(kerosene.getText()));
+//        if(this.estacionesDeServicios.getSelectedIndex()==0){
+//            try {
+//                s.editarInformacionDelPrecioDeTodasLasEstaciones(precios);
+//            } catch (IOException ex) {
+//                Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }else{
+//            try {
+//                s.editarInformacionDelPrecioDeUnaEstacion(this.estacionesDeServicios.getSelectedIndex()-1, precios);
+//            } catch (IOException ex) {
+//                Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
         
-        JOptionPane.showMessageDialog(null,"Operacion realizada con exito");
+        //JOptionPane.showMessageDialog(null,"Operacion realizada con exito");
     }//GEN-LAST:event_precioAUnoActionPerformed
 
     private void reporteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reporteActionPerformed
@@ -344,6 +368,12 @@ public class CasaMatriz extends javax.swing.JFrame{
     private void estacionesDeServicios1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_estacionesDeServicios1ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_estacionesDeServicios1ActionPerformed
+
+    private void backupsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backupsActionPerformed
+        // simulación de backups
+        testBaseDeDatosGoogleCloud();
+        
+    }//GEN-LAST:event_backupsActionPerformed
     
     
     /**
@@ -386,6 +416,7 @@ public class CasaMatriz extends javax.swing.JFrame{
     private javax.swing.JTextField b93;
     private javax.swing.JTextField b95;
     private javax.swing.JTextField b97;
+    private javax.swing.JButton backups;
     private javax.swing.JTextField disel;
     private javax.swing.JComboBox<String> estacionesDeServicios;
     private javax.swing.JComboBox<String> estacionesDeServicios1;
@@ -412,10 +443,65 @@ public class CasaMatriz extends javax.swing.JFrame{
     private javax.swing.JButton reporte;
     // End of variables declaration//GEN-END:variables
 
-    void agregarConexion(String id, String direccion, String ip) {
-        this.s.agregarConexion(id, direccion, ip);
-        this.estacionesDeServicios.addItem(id + " " + direccion);
-        this.estacionesDeServicios1.addItem(id + " " + direccion);
+    void agregarConexion(String nombre, String direccion) {
+        //this.s.agregarConexion(nombre, direccion, ip);
+        this.agregarEstacionesServiciosLocal(nombre, direccion);
+        //this.agregarEstacionesServiciosGC(nombre, direccion);
+        this.actualizarEstacionesServicios();
+        //this.estacionesDeServicios.addItem(nombre + " " + direccion);
+        
+    }
+     
+    public void agregarEstacionesServiciosGC(String nombre, String direccion) {//aun no esta lista
+        try {
+            String sql = "insert into estacionesdeservicio(nombre, direccion) values('"+nombre+"','"+direccion+"')";
+            con = conexionBDGoogleCloud.getConnection();
+            st = con.createStatement();
+            st.executeUpdate(sql);
+            //JOptionPane.showMessageDialog(null, "Estacion de servicio registrada");
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+    private void agregarEstacionesServiciosLocal(String nombre, String direccion) {
+        try {
+            String sql = "insert into estacionesdeservicio(nombre, direccion) values('"+nombre+"','"+direccion+"')";
+            con = this.conexionBDLocal.getConnection();
+            st = con.createStatement();
+            st.executeUpdate(sql);
+            JOptionPane.showMessageDialog(null, "Estacion de servicio registrada");
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+    
+    public void actualizarEstacionesServicios(){
+        String sql = "Select * from estacionesdeservicio";
+        try {
+            ArrayList<EstacionDeServicio>estacionesDeServicio = new ArrayList<>();
+            con = this.conexionBDLocal.getConnection();
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            while(rs.next()) {
+                EstacionDeServicio e = new EstacionDeServicio(rs.getInt("id"),rs.getString("nombre"),rs.getString("direccion"));
+                estacionesDeServicio.add(e);
+            }
+            if (this.estacionesDeServicios.getItemCount() == 1) {
+                for (int i = 0; i < estacionesDeServicio.size(); i++) {
+                    //System.out.println("hola 1");
+                    String s = estacionesDeServicio.get(i).getNombre()+" "+estacionesDeServicio.get(i).getDireccion();
+                    this.estacionesDeServicios.addItem(s);
+                    this.estacionesDeServicios1.addItem(s);
+                }
+            }
+            else{
+                String s = estacionesDeServicio.get(estacionesDeServicio.size()-1).getNombre()+" "+estacionesDeServicio.get(estacionesDeServicio.size()-1).getDireccion();
+                this.estacionesDeServicios.addItem(s);
+                this.estacionesDeServicios1.addItem(s);
+            }
+        } catch (Exception e) {
+            //algo
+        }
     }
     
     public void crearInforme(String estacion, String tipoCombustible,ArrayList<String[]> informe,int cantidadDeCargas, double litrosConsumidos){
@@ -461,6 +547,77 @@ public class CasaMatriz extends javax.swing.JFrame{
        } catch (Exception e) {
            e.printStackTrace();
        }
+    }
+    
+    public void testBaseDeDatosGoogleCloud(){
+        try {
+            String sql = "insert into compras(idSurtidor, tipoCombustible, litrosCargados, precioTotal,fecha) values('" + "1" + "','" + "97" + "','" + "100" + "','" + "5000" + "25-03-2020"+"')";
+            con = conexionBDGoogleCloud.getConnection();
+            st = con.createStatement();
+            st.executeUpdate(sql);
+            JOptionPane.showMessageDialog(null, "Compra Registrada con Exito");
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+    
+    private void generarRespaldoCompras(){
+        String sql = "Select * from compras";
+        Precios p = null;
+        try {
+            this.backupCompras = new ArrayList<>();
+            con = this.conexionBDGoogleCloud.getConnection();
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            while(rs.next()) {
+                Compra c = new Compra(rs.getInt("id"),rs.getInt("idSucursal"),rs.getInt("idCompra"),rs.getInt("idSurtidor"),rs.getString("tipoConbustible"),rs.getDouble("litrosCargados"),rs.getInt("precioTotal"),rs.getDate("fecha"));
+                this.backupCompras.add(c);
+            }
+           
+        } catch (Exception e) {
+            //algo
+        }
+    }
+    
+    private void generarRespaldoEstaciónDeServicio(){
+        String sql = "Select * from estacionesdeservicio";
+        try {
+            this.backupEstacionDeServicio = new ArrayList<>();
+            con = this.conexionBDGoogleCloud.getConnection();
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            while(rs.next()) {
+                EstacionDeServicio e = new EstacionDeServicio(rs.getInt("id"),rs.getString("nombre"),rs.getString("direccion"));
+                this.backupEstacionDeServicio.add(e);
+            }
+           
+        } catch (Exception e) {
+            //algo
+        }
+    }
+    
+    private void generarRespaldoPrecios(){
+        String sql = "Select * from Precios";
+        try {
+            this.backupPrecios = new ArrayList<>();
+            con = this.conexionBDGoogleCloud.getConnection();
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            while(rs.next()) {
+                Precios p = new Precios(rs.getInt("id"),rs.getInt("idSucursal"),rs.getInt("idPrecio"),rs.getDouble("b93"),rs.getDouble("b95"),rs.getDouble("b97"),rs.getDouble("diesel"),rs.getDouble("kerosene"),rs.getDate("fecha"));
+                this.backupPrecios.add(p);
+            }
+           
+        } catch (Exception e) {
+            //algo
+        }
+    }
+    
+    public void ingresarBackupsHaciaBDLocal(){
+        this.generarRespaldoCompras();
+        this.generarRespaldoEstaciónDeServicio();
+        this.generarRespaldoPrecios();
+    
     }
         
         
