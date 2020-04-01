@@ -1,0 +1,7 @@
+Infome de consumo de combustible
+ID de la estación  : Estacion de servicio pronto alarcon Curico
+Tipo de combustible: 93
+Cantidad de cargar : 1
+Litros consumido   : 100.0
+ IdCompra - IdSurtidor - TipoCombustible - LitrosCargados - PrecioTotal - Fecha
+ 46      -       1      -       93      -       100      -       10000      -       2020-03-31

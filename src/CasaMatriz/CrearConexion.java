@@ -156,7 +156,6 @@ public class CrearConexion extends javax.swing.JFrame {
         this.papa.agregarConexion(this.nombre.getText(), this.direccion.getText());
         this.nombre.setText("");
         this.direccion.setText("");
-        JOptionPane.showMessageDialog(null,"Operacion realizada con exito");
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }//GEN-LAST:event_jButton1ActionPerformed
 

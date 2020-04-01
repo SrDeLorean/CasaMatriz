@@ -1,0 +1,7 @@
+Infome de consumo de combustible
+ID de la estación  : Estacion de servicio lontue Lontue
+Tipo de combustible: 95
+Cantidad de cargar : 1
+Litros consumido   : 200.0
+ IdCompra - IdSurtidor - TipoCombustible - LitrosCargados - PrecioTotal - Fecha
+ 48      -       1      -       95      -       200      -       200      -       2020-04-01
