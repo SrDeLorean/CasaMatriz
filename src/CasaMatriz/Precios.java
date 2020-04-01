@@ -10,7 +10,6 @@ import java.sql.Date;
 public class Precios implements Serializable{
     private int  id;
     private int idSucursal;
-    private int idPrecio;
     private double b93;
     private double b95;
     private double b97;
@@ -19,10 +18,9 @@ public class Precios implements Serializable{
     private Date fecha;
     
 
-    public Precios(int id,int idSucursal,int idPrecio,double b93, double b95, double b97, double disel, double kerosene,Date fecha) {
+    public Precios(int id,int idSucursal,double b93, double b95, double b97, double disel, double kerosene,Date fecha) {
         this.id = id;
         this.idSucursal = idSucursal;
-        this.idPrecio = idPrecio;
         this.b93 = b93;
         this.b95 = b95;
         this.b97 = b97;
@@ -66,14 +64,6 @@ public class Precios implements Serializable{
 
     public void setIdSucursal(int idSucursal) {
         this.idSucursal = idSucursal;
-    }
-
-    public int getIdPrecio() {
-        return idPrecio;
-    }
-
-    public void setIdPrecio(int idPrecio) {
-        this.idPrecio = idPrecio;
     }
 
     public Date getFecha() {
