@@ -32,7 +32,6 @@ import java.util.Date;
 public class CasaMatriz extends javax.swing.JFrame{
 
     private int puerto;
-    private Conexion s;
     private ConexionBDGoogleCloud conexionBDGoogleCloud = new ConexionBDGoogleCloud();
     private ConexionBDLocal conexionBDLocal = new ConexionBDLocal();
     private Connection con;
@@ -46,7 +45,6 @@ public class CasaMatriz extends javax.swing.JFrame{
     public CasaMatriz() {
         initComponents();
         this.estacionesDeServicios.setSelectedIndex(0);
-        s = new Conexion(5000);
         this.actualizarEstacionesServicios();
     }
 
@@ -533,7 +531,7 @@ public class CasaMatriz extends javax.swing.JFrame{
             st.executeUpdate(sql);
             JOptionPane.showMessageDialog(null, "Estacion de servicio registrada");
         } catch (Exception e) {
-            //System.out.println(e);
+            System.out.println(e);
         }
     }
     
@@ -572,68 +570,59 @@ public class CasaMatriz extends javax.swing.JFrame{
         String estacion = this.estacionesDeServicios1.getItemAt(this.estacionesDeServicios1.getSelectedIndex());
         String tipoCombustible = this.jComboBox1.getItemAt(this.jComboBox1.getSelectedIndex());
         int id = obtenerIdSucursalReporte();
-        String sql2 = "select * from compras where tipoConbustible = '"+tipoCombustible+"' and idSucursal = '"+id +"'";
-        try {
-            con = this.conexionBDGoogleCloud.getConnection();
-            st = con.createStatement();
-            rs = st.executeQuery(sql2);
-            while(rs.next()) {
-                Thread.sleep(100);
-                System.out.println("sss");
+        
+        
+        ArrayList<String[]> informe = listarCompras(tipoCombustible,id); 
+        if (informe.size()>0 || informe == null) {
+            if (flag) {
+                double litrosConsumidos = obtenertLitrosConsumidos(tipoCombustible,id); 
+                int cantidadDeCargas = obtenerCantidadCargasRealizadas(tipoCombustible,id);
+                Date date = new Date();
+                DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                try {
+                   String nombre = estacion;
+                   String tipo = tipoCombustible;
+                   String ruta = nombre+" Combustible="+tipo+" Fecha="+dateFormat.format(date)+".txt" ;
+                   String contenido = "Infome de consumo de combustible";
+                    ArrayList<String[]> inf = informe;
+                   File file = new File(ruta);
+                   // Si el archivo no existe es creado
+                   if (!file.exists()) {
+                       file.createNewFile();
+                   }
+                   FileWriter fw = new FileWriter(file);
+                   BufferedWriter bw = new BufferedWriter(fw);
+                   bw.write(contenido);
+                   bw.write("\n");
+                   bw.write("ID de la estación  : "+nombre);
+                   bw.write("\n");
+                   bw.write("Tipo de combustible: "+tipo);
+                   bw.write("\n");
+                   bw.write("Cantidad de cargar : "+cantidadDeCargas);
+                   bw.write("\n");
+                   bw.write("Litros consumido   : "+litrosConsumidos);
+                   bw.write("\n");
+                   bw.write(" IdCompra - IdSurtidor - TipoCombustible - LitrosCargados - PrecioTotal - Fecha");
+                    for (int i = 0; i < inf.size(); i++) {
+                        String cadena = " ";
+                        for (int j = 0; j < inf.get(i).length; j++) {
+                            if(j==0){
+                                cadena +=inf.get(i)[j] ;
+                            }else{
+                                cadena += "      -       "+inf.get(i)[j] ;
+                            }
+                        }
+                        bw.write("\n");
+                        bw.write(cadena);
+
+                    }
+                   bw.close();
+               } catch (Exception e) {
+                   e.printStackTrace();
+               }
             }
-        } catch (Exception e) {
-            System.out.println(e);
         }
         
-        ArrayList<String[]> informe = listarCompras(tipoCombustible,id);
-        System.out.println("largo del informe"+informe.size());
-        if (flag) {
-            double litrosConsumidos = obtenertLitrosConsumidos(tipoCombustible,id); 
-            int cantidadDeCargas = obtenerCantidadCargasRealizadas(tipoCombustible,id);
-            Date date = new Date();
-            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-            try {
-               String nombre = estacion;
-               String tipo = tipoCombustible;
-               String ruta = nombre+" Combustible="+tipo+" Fecha="+dateFormat.format(date)+".txt" ;
-               String contenido = "Infome de consumo de combustible";
-                ArrayList<String[]> inf = informe;
-               File file = new File(ruta);
-               // Si el archivo no existe es creado
-               if (!file.exists()) {
-                   file.createNewFile();
-               }
-               FileWriter fw = new FileWriter(file);
-               BufferedWriter bw = new BufferedWriter(fw);
-               bw.write(contenido);
-               bw.write("\n");
-               bw.write("ID de la estación  : "+nombre);
-               bw.write("\n");
-               bw.write("Tipo de combustible: "+tipo);
-               bw.write("\n");
-               bw.write("Cantidad de cargar : "+cantidadDeCargas);
-               bw.write("\n");
-               bw.write("Litros consumido   : "+litrosConsumidos);
-               bw.write("\n");
-               bw.write(" IdCompra - IdSurtidor - TipoCombustible - LitrosCargados - PrecioTotal - Fecha");
-                for (int i = 0; i < inf.size(); i++) {
-                    String cadena = " ";
-                    for (int j = 0; j < inf.get(i).length; j++) {
-                        if(j==0){
-                            cadena +=inf.get(i)[j] ;
-                        }else{
-                            cadena += "      -       "+inf.get(i)[j] ;
-                        }
-                    }
-                    bw.write("\n");
-                    bw.write(cadena);
-
-                }
-               bw.close();
-           } catch (Exception e) {
-               e.printStackTrace();
-           }
-        }
         
     }
     
@@ -701,10 +690,10 @@ public class CasaMatriz extends javax.swing.JFrame{
             st = con.createStatement();
             rs = st.executeQuery(sql);
             while(rs.next()) {
-                System.out.println("hola");
+
                 String[] s = new String[6];
                 s[0] = rs.getString("idCompra");
-                System.out.println(rs.getString("idCompra"));
+
                 s[1] = rs.getString("idSurtidor");
                 s[2] = rs.getString("tipoConbustible");
                 s[3] = rs.getString("litrosCargados");
@@ -717,16 +706,12 @@ public class CasaMatriz extends javax.swing.JFrame{
             }
             return informe;
         } catch (Exception e) {
-            //algo
-            //(e);
-            //if (e.equals("java.lang.NullPointerException") || e.equals("com.mysql.jdbc.exceptions.jdbc4.CommunicationsException: Communications link failure") ) {
+
             int seleccion = JOptionPane.showOptionDialog( null,"Existe un problema para realizar la coneccion, que desea hacer?",
                 "Problemas en la coneccion",JOptionPane.YES_NO_CANCEL_OPTION,
                  JOptionPane.QUESTION_MESSAGE,null,// null para icono por defecto.
                 new Object[] { "Reintentar", "Utilizar BD local", "Cancelar"},"opcion 1");
-
                if (seleccion != -1){
-                   //System.out.println("seleccifcojn "+seleccion);
                    if (seleccion == 0) {
                         this.conexionBDGoogleCloud = new ConexionBDGoogleCloud();
                         Thread.sleep(10000);
@@ -1056,7 +1041,7 @@ public class CasaMatriz extends javax.swing.JFrame{
                     st = con.createStatement();
                     st.executeUpdate(sql2);
                 } catch (Exception e) {
-                    //System.out.println(e);
+                    System.out.println(e);
                 }
             }
         }
