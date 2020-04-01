@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -40,6 +41,7 @@ public class CasaMatriz extends javax.swing.JFrame{
     private ArrayList<Compra> backupCompras;
     private ArrayList<EstacionDeServicio> backupEstacionDeServicio;
     private ArrayList<Precios> backupPrecios;
+    private boolean flag ;
     
     public CasaMatriz() {
         initComponents();
@@ -324,10 +326,6 @@ public class CasaMatriz extends javax.swing.JFrame{
     }// </editor-fold>//GEN-END:initComponents
 
     private void precioAUnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_precioAUnoActionPerformed
-        // TODO add your handling code here:
-        //Precios precios = new Precios(Double.parseDouble(b93.getText()), Double.parseDouble(b95.getText()), Double.parseDouble(b97.getText()), Double.parseDouble(disel.getText()), Double.parseDouble(kerosene.getText()));
-
-        
         int idSucursal = this.obtenerIdSucursal();
         Date date = new Date();
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
@@ -345,7 +343,7 @@ public class CasaMatriz extends javax.swing.JFrame{
                 this.kerosene.setText("");
                 this.estacionesDeServicios.setSelectedIndex(0);
             } catch (Exception e) {
-                System.out.println(e);
+                //(e);
             }
         }
         else {    
@@ -374,7 +372,7 @@ public class CasaMatriz extends javax.swing.JFrame{
                         this.kerosene.setText("");
                         this.estacionesDeServicios.setSelectedIndex(0);
                     } catch (Exception e) {
-                        System.out.println(e);
+                        //(e);
                     }
                 }
             } catch (Exception e) {
@@ -409,22 +407,15 @@ public class CasaMatriz extends javax.swing.JFrame{
     }
        
     private void reporteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reporteActionPerformed
-//        try {
-//            // TODO add your handling code here:
-////            s.obtenerInformacionDeLaEstacion(this.estacionesDeServicios1.getSelectedIndex(), this.jComboBox1.getItemAt(this.jComboBox1.getSelectedIndex()));
-////            String estacion = this.estacionesDeServicios1.getItemAt(this.estacionesDeServicios1.getSelectedIndex());
-////            String tipoCombustible = this.jComboBox1.getItemAt(this.jComboBox1.getSelectedIndex());
-////            ArrayList<String[]> informe = s.getInforme();
-////            int cantidadDeCargas = s.getCantidadDeCargas();
-////            Double litrosConsumidos = s.getLitrosConsumidos(); 
-////            this.crearInforme(estacion,tipoCombustible,informe,cantidadDeCargas,litrosConsumidos);
-//            
-//        } catch (IOException ex) {
-//            Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-        
-//        JOptionPane.showMessageDialog(null,"Operacion realizada con exito");
-        crearInforme();
+        try {
+            crearInforme();
+            if (flag) {
+                JOptionPane.showMessageDialog(null, "Reporte realizado");
+            }
+            
+        } catch (InterruptedException ex) {
+            Logger.getLogger(CasaMatriz.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_reporteActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -531,7 +522,7 @@ public class CasaMatriz extends javax.swing.JFrame{
             st.executeUpdate(sql);
             //JOptionPane.showMessageDialog(null, "Estacion de servicio registrada");
         } catch (Exception e) {
-            System.out.println(e);
+            //(e);
         }
     }
     private void agregarEstacionesServiciosLocal(String nombre, String direccion) {
@@ -542,7 +533,7 @@ public class CasaMatriz extends javax.swing.JFrame{
             st.executeUpdate(sql);
             JOptionPane.showMessageDialog(null, "Estacion de servicio registrada");
         } catch (Exception e) {
-            System.out.println(e);
+            //System.out.println(e);
         }
     }
     
@@ -559,7 +550,7 @@ public class CasaMatriz extends javax.swing.JFrame{
             }
             if (this.estacionesDeServicios.getItemCount() == 1) {
                 for (int i = 0; i < estacionesDeServicio.size(); i++) {
-                    //System.out.println("hola 1");
+                    ///("hola 1");
                     String s = estacionesDeServicio.get(i).getNombre()+" "+estacionesDeServicio.get(i).getDireccion();
                     this.estacionesDeServicios.addItem(s);
                     this.estacionesDeServicios1.addItem(s);
@@ -575,26 +566,91 @@ public class CasaMatriz extends javax.swing.JFrame{
         }
     }
     
-    public void crearInforme(){
-        // Se crea el documento
+    public void crearInforme() throws InterruptedException{
+        
+        flag = false;
+        String estacion = this.estacionesDeServicios1.getItemAt(this.estacionesDeServicios1.getSelectedIndex());
+        String tipoCombustible = this.jComboBox1.getItemAt(this.jComboBox1.getSelectedIndex());
+        int id = obtenerIdSucursalReporte();
+        String sql2 = "select * from compras where tipoConbustible = '"+tipoCombustible+"' and idSucursal = '"+id +"'";
+        try {
+            con = this.conexionBDGoogleCloud.getConnection();
+            st = con.createStatement();
+            rs = st.executeQuery(sql2);
+            while(rs.next()) {
+                Thread.sleep(100);
+                System.out.println("sss");
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        
+        ArrayList<String[]> informe = listarCompras(tipoCombustible,id);
+        System.out.println("largo del informe"+informe.size());
+        if (flag) {
+            double litrosConsumidos = obtenertLitrosConsumidos(tipoCombustible,id); 
+            int cantidadDeCargas = obtenerCantidadCargasRealizadas(tipoCombustible,id);
+            Date date = new Date();
+            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            try {
+               String nombre = estacion;
+               String tipo = tipoCombustible;
+               String ruta = nombre+" Combustible="+tipo+" Fecha="+dateFormat.format(date)+".txt" ;
+               String contenido = "Infome de consumo de combustible";
+                ArrayList<String[]> inf = informe;
+               File file = new File(ruta);
+               // Si el archivo no existe es creado
+               if (!file.exists()) {
+                   file.createNewFile();
+               }
+               FileWriter fw = new FileWriter(file);
+               BufferedWriter bw = new BufferedWriter(fw);
+               bw.write(contenido);
+               bw.write("\n");
+               bw.write("ID de la estación  : "+nombre);
+               bw.write("\n");
+               bw.write("Tipo de combustible: "+tipo);
+               bw.write("\n");
+               bw.write("Cantidad de cargar : "+cantidadDeCargas);
+               bw.write("\n");
+               bw.write("Litros consumido   : "+litrosConsumidos);
+               bw.write("\n");
+               bw.write(" IdCompra - IdSurtidor - TipoCombustible - LitrosCargados - PrecioTotal - Fecha");
+                for (int i = 0; i < inf.size(); i++) {
+                    String cadena = " ";
+                    for (int j = 0; j < inf.get(i).length; j++) {
+                        if(j==0){
+                            cadena +=inf.get(i)[j] ;
+                        }else{
+                            cadena += "      -       "+inf.get(i)[j] ;
+                        }
+                    }
+                    bw.write("\n");
+                    bw.write(cadena);
+
+                }
+               bw.close();
+           } catch (Exception e) {
+               e.printStackTrace();
+           }
+        }
+        
+    }
+    
+    public void crearInformeLocal() throws InterruptedException{
         String estacion = this.estacionesDeServicios1.getItemAt(this.estacionesDeServicios1.getSelectedIndex());
         String tipoCombustible = this.jComboBox1.getItemAt(this.jComboBox1.getSelectedIndex());
   
         int id = obtenerIdSucursalReporte();
-        ArrayList<String[]> informe = listarCompras(tipoCombustible,id);
-        double litrosConsumidos = obtenertLitrosConsumidos(tipoCombustible,id); 
-        int cantidadDeCargas = obtenerCantidadCargasRealizadas(tipoCombustible,id);
-        System.out.println("reporte");
-        System.out.println(id);
-        System.out.println(litrosConsumidos);
-        System.out.println(cantidadDeCargas);
-        System.out.println(tipoCombustible);
-        
-        
+        ArrayList<String[]> informe = listarComprasLocal(tipoCombustible,id);
+        double litrosConsumidos = obtenertLitrosConsumidosLocal(tipoCombustible,id); 
+        int cantidadDeCargas = obtenerCantidadCargasRealizadasLocal(tipoCombustible,id);
+        Date date = new Date();
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         try {
            String nombre = estacion;
            String tipo = tipoCombustible;
-           String ruta = nombre+"-"+tipo+".txt" ;
+           String ruta = nombre+" Combustible="+tipo+" Fecha="+dateFormat.format(date)+".txt" ;
            String contenido = "Infome de consumo de combustible";
             ArrayList<String[]> inf = informe;
            File file = new File(ruta);
@@ -634,13 +690,68 @@ public class CasaMatriz extends javax.swing.JFrame{
        }
     }
     
-    public ArrayList<String[]> listarCompras(String tipoCombustible,int id)  {
+    
+    public ArrayList<String[]> listarCompras(String tipoCombustible,int id) throws InterruptedException  {
+        String sql = "select * from compras where tipoConbustible = '"+tipoCombustible+"' and idSucursal = '"+id +"'";
+        //ArrayList<Compra> array = new ArrayList<>();
+        ArrayList<String[]> informe2 = new ArrayList();
+        try {
+            ArrayList<String[]>informe = new ArrayList();
+            con = this.conexionBDGoogleCloud.getConnection();
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            while(rs.next()) {
+                System.out.println("hola");
+                String[] s = new String[6];
+                s[0] = rs.getString("idCompra");
+                System.out.println(rs.getString("idCompra"));
+                s[1] = rs.getString("idSurtidor");
+                s[2] = rs.getString("tipoConbustible");
+                s[3] = rs.getString("litrosCargados");
+                s[4] = rs.getString("precioTotal");
+                s[5] = rs.getString("fecha");
+                informe.add(s);
+                //Compra compra = new Compra(rs.getInt("idCompra"),rs.getInt("idSurtidor"),rs.getString("tipoCombustible"),rs.getDouble("litrosCargados"),rs.getInt("precioTotal"));
+                //array.add(compra);
+                this.flag = true;
+            }
+            return informe;
+        } catch (Exception e) {
+            //algo
+            //(e);
+            //if (e.equals("java.lang.NullPointerException") || e.equals("com.mysql.jdbc.exceptions.jdbc4.CommunicationsException: Communications link failure") ) {
+            int seleccion = JOptionPane.showOptionDialog( null,"Existe un problema para realizar la coneccion, que desea hacer?",
+                "Problemas en la coneccion",JOptionPane.YES_NO_CANCEL_OPTION,
+                 JOptionPane.QUESTION_MESSAGE,null,// null para icono por defecto.
+                new Object[] { "Reintentar", "Utilizar BD local", "Cancelar"},"opcion 1");
+
+               if (seleccion != -1){
+                   //System.out.println("seleccifcojn "+seleccion);
+                   if (seleccion == 0) {
+                        this.conexionBDGoogleCloud = new ConexionBDGoogleCloud();
+                        Thread.sleep(10000);
+                        crearInforme();
+                   }
+                   if (seleccion == 1) {
+                       crearInformeLocal();
+                   }
+                   if (seleccion == 2) {
+                       
+                   }
+                    
+               }
+        }
         
+        return informe2;
+
+    }
+    
+    public ArrayList<String[]> listarComprasLocal(String tipoCombustible,int id) throws InterruptedException  {
         String sql = "select * from compras where tipoConbustible = '"+tipoCombustible+"' and idSucursal = '"+id +"'";
         //ArrayList<Compra> array = new ArrayList<>();
         ArrayList<String[]> informe = new ArrayList();
         try {
-            con = this.conexionBDGoogleCloud.getConnection();
+            con = this.conexionBDLocal.getConnection();
             st = con.createStatement();
             rs = st.executeQuery(sql);
             while(rs.next()) {
@@ -652,20 +763,14 @@ public class CasaMatriz extends javax.swing.JFrame{
                 s[4] = rs.getString("precioTotal");
                 s[5] = rs.getString("fecha");
                 informe.add(s);
-                //Compra compra = new Compra(rs.getInt("idCompra"),rs.getInt("idSurtidor"),rs.getString("tipoCombustible"),rs.getDouble("litrosCargados"),rs.getInt("precioTotal"));
-                //array.add(compra);
             }
-
-           
         } catch (Exception e) {
-            //algo
-            System.out.println("reporte");
-            System.out.println(e);
+           
         }
-        
         return informe;
 
     }
+    
     
 
       public double obtenertLitrosConsumidos(String tipoCombustible,int idSucursal) {   
@@ -678,13 +783,31 @@ public class CasaMatriz extends javax.swing.JFrame{
             while(rs.next()) {
                 litros = rs.getDouble("tabla");
             }
-            System.out.println("estoy dentro ctm litros consumidos");
+            //("estoy dentro ctm litros consumidos");
         } catch (Exception e) {
             //algo
-            System.out.println("litros");
-            System.out.println(e);
+            //("litros");
+            //(e);
         }
-        
+        return litros;
+    }
+      
+    public double obtenertLitrosConsumidosLocal(String tipoCombustible,int idSucursal) {   
+        String sql = "select SUM(litrosCargados) as tabla from compras where tipoConbustible = '"+tipoCombustible +"' and idSucursal = '"+idSucursal+"'";
+        double litros = 0;
+        try {
+            con = this.conexionBDLocal.getConnection();
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            while(rs.next()) {
+                litros = rs.getDouble("tabla");
+            }
+            //("estoy dentro ctm litros consumidos");
+        } catch (Exception e) {
+            //algo
+            //("litros");
+            //(e);
+        }
         return litros;
     }
 
@@ -698,11 +821,30 @@ public class CasaMatriz extends javax.swing.JFrame{
             while(rs.next()) {
                 cantidadDeCarga = rs.getInt("tabla");
             }
-            System.out.println("estoy dentro ctm cargas realizadas");
+            //("estoy dentro ctm cargas realizadas");
         } catch (Exception e) {
             //algo
-            System.out.println("cargas");
-            System.out.println(e);
+            //("cargas");
+            //(e);
+        }
+        return cantidadDeCarga;
+    }
+    
+    public int obtenerCantidadCargasRealizadasLocal(String tipoCombustible,int idSucursal) {
+        String sql = "select COUNT(id) as tabla from compras where tipoConbustible = '"+tipoCombustible+"'and idSucursal = '"+idSucursal+"'";
+        int cantidadDeCarga = 0;
+        try {
+            con = this.conexionBDLocal.getConnection();
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            while(rs.next()) {
+                cantidadDeCarga = rs.getInt("tabla");
+            }
+            //("estoy dentro ctm cargas realizadas");
+        } catch (Exception e) {
+            //algo
+            //("cargas");
+            //(e);
         }
         return cantidadDeCarga;
     }
@@ -720,13 +862,13 @@ public class CasaMatriz extends javax.swing.JFrame{
                 e = new EstacionDeServicio(rs.getInt("id"),rs.getString("nombre"),rs.getString("direccion"));
             }
             id = e.getId();
-            System.out.println("estoy dentro ctm id sucursal reporte");
+            //("estoy dentro ctm id sucursal reporte");
             return id;
             
         } catch (Exception e) {
             //algo
-            System.out.println("id");
-            System.out.println(e);
+            //("id");
+            //(e);
             
         }
 
@@ -742,7 +884,7 @@ public class CasaMatriz extends javax.swing.JFrame{
             st.executeUpdate(sql);
             JOptionPane.showMessageDialog(null, "Compra Registrada con Exito");
         } catch (Exception e) {
-            System.out.println(e);
+            //(e);
         }
     }
     
@@ -839,7 +981,7 @@ public class CasaMatriz extends javax.swing.JFrame{
                     st = con.createStatement();
                     st.executeUpdate(sql2);
                 } catch (Exception e) {
-                    System.out.println(e);
+                    //(e);
                 }
             }
         }
@@ -860,7 +1002,7 @@ public class CasaMatriz extends javax.swing.JFrame{
         } catch (Exception e) {
             //algo
         }
-        System.out.println(estacionesDeServicio.size());
+        //(estacionesDeServicio.size());
         for (int i = 0; i < this.backupEstacionDeServicio.size(); i++) {
             
             boolean flag = true;
@@ -876,7 +1018,7 @@ public class CasaMatriz extends javax.swing.JFrame{
                     st = con.createStatement();
                     st.executeUpdate(sql2);
                 } catch (Exception e) {
-                    System.out.println(e);
+                    //(e);
                 }
             }
         }
@@ -896,9 +1038,9 @@ public class CasaMatriz extends javax.swing.JFrame{
             }
         } catch (Exception e) {
             //algo
-            System.out.println(" hola");
+            //(" hola");
         }
-        System.out.println(this.backupPrecios.size());
+        //(this.backupPrecios.size());
         for (int i = 0; i < this.backupPrecios.size(); i++) {
             
             boolean flag = true;
@@ -914,7 +1056,7 @@ public class CasaMatriz extends javax.swing.JFrame{
                     st = con.createStatement();
                     st.executeUpdate(sql2);
                 } catch (Exception e) {
-                    System.out.println(e);
+                    //System.out.println(e);
                 }
             }
         }
